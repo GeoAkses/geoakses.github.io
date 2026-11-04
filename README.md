@@ -1,2 +1,3 @@
 # geoakses.github.io
-Aplikasi WebGis yang berfokus pada pemetaan fasilitas umum, pencarian rute transportasi publik, dan analisis aksesbilitas di kota bandung
+
+landing page aplikasi geoakses menggunakan croot.js berisi panduan dan cara pakai aplikasi serta link unduh apk dari realease 
