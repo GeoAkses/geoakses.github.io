@@ -1,4 +1,4 @@
-name: 🏷️ Auto Tag on Version Bump
+name: Auto Tag
 
 on:
   push:
@@ -6,64 +6,57 @@ on:
       - main
       - master
     paths:
-      - 'geoakses/app/build.gradle.kts'
+      - geoakses/app/build.gradle.kts
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
   auto-tag:
-    name: Create Git Tag from versionName
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Extract versionName from build.gradle.kts
-        id: extract_version
+      - name: Read version
+        id: version
+        shell: bash
         run: |
-          VERSION=$(grep -oP 'versionName\s*=\s*"\K[^"]+' geoakses/app/build.gradle.kts)
-          VERSION_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' geoakses/app/build.gradle.kts)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION (code: $VERSION_CODE)"
-
-      - name: Check if tag already exists
-        id: check_tag
-        run: |
-          TAG="v${{ steps.extract_version.outputs.version }}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag $TAG already exists, skipping."
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Tag $TAG does not exist, will create."
+          VERSION_NAME=$(sed -nE 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' geoakses/app/build.gradle.kts | head -n 1)
+          VERSION_CODE=$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*([0-9]+).*/\1/p' geoakses/app/build.gradle.kts | head -n 1)
+          if [[ ! "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || -z "$VERSION_CODE" ]]; then
+            echo "Could not read a semantic versionName and numeric versionCode." >&2
+            exit 1
           fi
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Configure Git
-        if: steps.check_tag.outputs.exists == 'false'
+      - name: Create annotated tag if missing
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists; skipping."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Create and push tag
-        if: steps.check_tag.outputs.exists == 'false'
-        run: |
-          TAG="${{ steps.extract_version.outputs.tag }}"
-          VERSION="${{ steps.extract_version.outputs.version }}"
-          VERSION_CODE="${{ steps.extract_version.outputs.version_code }}"
-          git tag -a "$TAG" -m "Release $TAG (versionCode: $VERSION_CODE)"
+          git tag -a "$TAG" -m "GeoAkses $TAG (versionCode: $VERSION_CODE)"
           git push origin "$TAG"
-          echo "✅ Created and pushed tag: $TAG"
+          # Pushes made with GITHUB_TOKEN do not trigger another workflow run.
+          gh workflow run release-apk-aab.yml --ref "$GITHUB_REF_NAME" -f tag_name="$TAG"
 
-      - name: Summary
+      - name: Write summary
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
         run: |
-          echo "### 🏷️ Auto Tag Result" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.check_tag.outputs.exists }}" == "true" ]; then
-            echo "Tag **${{ steps.extract_version.outputs.tag }}** already exists — no action taken." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ Created tag **${{ steps.extract_version.outputs.tag }}** (versionCode: ${{ steps.extract_version.outputs.version_code }})" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### Auto tag" >> "$GITHUB_STEP_SUMMARY"
+          echo "Version: $TAG (versionCode $VERSION_CODE)" >> "$GITHUB_STEP_SUMMARY"
