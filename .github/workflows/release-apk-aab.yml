@@ -1,0 +1,207 @@
+name: 🚀 Release APK & AAB
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag/version to build (e.g. v1.0.0)'
+        required: false
+        default: 'manual-build'
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+permissions:
+  contents: write
+
+env:
+  JAVA_VERSION: '17'
+  GRADLE_VERSION: '8.7'
+
+jobs:
+  build:
+    name: 🔨 Build Release APK & AAB
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: geoakses
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Extract version info
+        id: version
+        run: |
+          VERSION_NAME=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts)
+          VERSION_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' app/build.gradle.kts)
+          TAG="${GITHUB_REF_NAME:-${{ github.event.inputs.tag_name }}}"
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Build: $VERSION_NAME (code $VERSION_CODE) - Tag: $TAG"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # ── Keystore setup ──────────────────────────────────────────────────────
+      - name: Decode and set up Keystore
+        if: github.event.inputs.build_type != 'debug'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > release.keystore
+            echo "✅ Keystore decoded successfully"
+          else
+            echo "⚠️ KEYSTORE_BASE64 secret not set — unsigned release build will be produced"
+          fi
+
+      # ── Build ───────────────────────────────────────────────────────────────
+      - name: Build Release APK
+        env:
+          KEYSTORE_FILE: release.keystore
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Build Release AAB (Android App Bundle)
+        env:
+          KEYSTORE_FILE: release.keystore
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease --stacktrace
+
+      # ── Rename artifacts ────────────────────────────────────────────────────
+      - name: Rename artifacts
+        id: artifacts
+        run: |
+          VERSION="${{ steps.version.outputs.version_name }}"
+          CODE="${{ steps.version.outputs.version_code }}"
+          TAG="${{ steps.version.outputs.tag }}"
+
+          APK_SRC="app/build/outputs/apk/release/app-release.apk"
+          AAB_SRC="app/build/outputs/bundle/release/app-release.aab"
+          APK_DEST="GeoAkses-${VERSION}-${CODE}-release.apk"
+          AAB_DEST="GeoAkses-${VERSION}-${CODE}-release.aab"
+
+          if [ -f "$APK_SRC" ]; then
+            cp "$APK_SRC" "$APK_DEST"
+            echo "apk_path=$APK_DEST" >> $GITHUB_OUTPUT
+            echo "✅ APK: $APK_DEST"
+          fi
+
+          if [ -f "$AAB_SRC" ]; then
+            cp "$AAB_SRC" "$AAB_DEST"
+            echo "aab_path=$AAB_DEST" >> $GITHUB_OUTPUT
+            echo "✅ AAB: $AAB_DEST"
+          fi
+
+          echo "apk_name=$APK_DEST" >> $GITHUB_OUTPUT
+          echo "aab_name=$AAB_DEST" >> $GITHUB_OUTPUT
+
+      # ── Upload artifacts to workflow run ───────────────────────────────────
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        if: steps.artifacts.outputs.apk_path != ''
+        with:
+          name: GeoAkses-APK-${{ steps.version.outputs.version_name }}
+          path: geoakses/${{ steps.artifacts.outputs.apk_path }}
+          retention-days: 30
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        if: steps.artifacts.outputs.aab_path != ''
+        with:
+          name: GeoAkses-AAB-${{ steps.version.outputs.version_name }}
+          path: geoakses/${{ steps.artifacts.outputs.aab_path }}
+          retention-days: 30
+
+      # ── GitHub Release ──────────────────────────────────────────────────────
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          VERSION="${{ steps.version.outputs.version_name }}"
+          CODE="${{ steps.version.outputs.version_code }}"
+          cat > release_notes.md << EOF
+          ## GeoAkses $VERSION
+
+          **Aplikasi Transportasi Publik Bandung Raya & Jawa Barat**
+
+          ### 📦 Artifact Info
+          - **Version Name**: $VERSION
+          - **Version Code**: $CODE
+          - **Build Type**: Release
+          - **Min SDK**: Android 7.0 (API 24)
+          - **Target SDK**: Android 15 (API 35)
+
+          ### ✨ Fitur Utama
+          - 🗺️ Peta Interaktif berbasis OpenStreetMap
+          - 🚌 Lacak posisi bus Trans Metro Bandung (TMB) & Metro Jabar Trans (MJT) secara real-time
+          - 🏠 Temukan halte & shelter terdekat
+          - 📋 Informasi jadwal & tarif lengkap
+          - 🌙 Dukungan Dark Mode
+
+          ### 🚌 Operator yang Didukung
+          - **Trans Metro Bandung (TMB)**: 5 koridor aktif
+          - **Metro Jabar Trans (MJT)**: 3 koridor aktif
+
+          ### 📱 Instalasi APK
+          > Download file `.apk`, izinkan instalasi dari sumber tidak dikenal, lalu install.
+
+          ### 📦 AAB (Google Play)
+          > File `.aab` digunakan untuk upload ke Google Play Console.
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: GeoAkses ${{ steps.version.outputs.version_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          body_path: geoakses/release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            geoakses/${{ steps.artifacts.outputs.apk_name }}
+            geoakses/${{ steps.artifacts.outputs.aab_name }}
+
+      - name: Build Summary
+        run: |
+          echo "### 🚀 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ steps.version.outputs.version_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version Code | ${{ steps.version.outputs.version_code }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | ${{ steps.version.outputs.tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| APK | ${{ steps.artifacts.outputs.apk_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| AAB | ${{ steps.artifacts.outputs.aab_name }} |" >> $GITHUB_STEP_SUMMARY
