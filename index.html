@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoAkses Bandung — Temukan Fasilitas Umum & Rute Transportasi Publik</title>
+  <meta name="description" content="Aplikasi Android berbasis SIG untuk menemukan fasilitas umum di Kota Bandung sekaligus memperoleh rekomendasi rute transportasi publik (TMB & Angkot)." />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="container navbar__inner">
+      <a href="#" class="navbar__logo">
+        <span class="logo-icon">📍</span> GeoAkses <span class="logo-accent">Bandung</span>
+      </a>
+      <button class="navbar__toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="navbar__menu" id="navMenu">
+        <li><a href="#tentang">Tentang</a></li>
+        <li><a href="#fitur">Fitur Utama</a></li>
+        <li><a href="#cara-kerja">Cara Kerja</a></li>
+        <li><a href="#simulasi">Simulasi Rute</a></li>
+        <li><a href="#simulasi" class="btn btn--nav">Coba Simulasi</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero" id="hero">
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <p class="hero__badge">🚍 Transportasi Publik &middot; 🗺️ Peta Interaktif</p>
+        <h1 class="hero__title">
+          Tidak hanya menjawab <em>ada fasilitas umum apa</em> di sekitar Anda, tetapi <em>bagaimana cara mencapainya</em> menggunakan transportasi publik.
+        </h1>
+        <p class="hero__subtitle">
+          GeoAkses Bandung adalah aplikasi Android berbasis Sistem Informasi Geografis (SIG) yang mengintegrasikan informasi fasilitas umum dengan rekomendasi rute <strong>TMB</strong> dan <strong>Angkot</strong> di Kota Bandung.
+        </p>
+        <div class="hero__actions">
+          <a href="#simulasi" class="btn btn--primary btn--lg">Coba Simulasi Rute</a>
+          <a href="#cara-kerja" class="btn btn--outline btn--lg">Cara Kerja →</a>
+        </div>
+      </div>
+      <div class="hero__visual">
+        <!-- Mockup Kartu UI Android GeoAkses -->
+        <div class="phone-mockup">
+          <div class="phone-mockup__screen">
+            <div class="mockup-header">
+              <span class="mockup-header__icon">📍</span>
+              <span class="mockup-header__title">GeoAkses Bandung</span>
+            </div>
+            <div class="mockup-map">
+              <div class="mockup-map__grid">
+                <div class="map-road map-road--h" style="top:30%"></div>
+                <div class="map-road map-road--h" style="top:60%"></div>
+                <div class="map-road map-road--v" style="left:35%"></div>
+                <div class="map-road map-road--v" style="left:70%"></div>
+              </div>
+              <div class="map-pin map-pin--lib" style="top:22%;left:28%" title="Perpustakaan">📚</div>
+              <div class="map-pin map-pin--hospital" style="top:50%;left:60%" title="Rumah Sakit">🏥</div>
+              <div class="map-pin map-pin--park" style="top:70%;left:25%" title="Taman">🌳</div>
+              <div class="map-pin map-pin--school" style="top:38%;left:78%" title="Sekolah">🏫</div>
+              <div class="map-pin map-pin--user" style="top:55%;left:40%" title="Lokasi Anda">📌</div>
+            </div>
+            <div class="mockup-card">
+              <div class="mockup-card__badge">📚 Perpustakaan</div>
+              <p class="mockup-card__name">Perpustakaan Kota Bandung</p>
+              <p class="mockup-card__addr">Jl. Seram No.2, Bandung</p>
+              <div class="mockup-card__btn">Cari Rute →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero__wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path d="M0,64 C360,120 1080,0 1440,64 L1440,120 L0,120 Z" fill="var(--bg-light)" />
+      </svg>
+    </div>
+  </header>
+
+  <!-- ============ TENTANG ============ -->
+  <section class="section" id="tentang">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__badge">Tentang Aplikasi</span>
+        <h2 class="section__title">Apa Itu GeoAkses Bandung?</h2>
+        <p class="section__desc">
+          GeoAkses Bandung adalah aplikasi berbasis Android yang mengintegrasikan <strong>informasi geografis fasilitas umum</strong> dengan <strong>data transportasi publik</strong> di Kota Bandung. Tujuannya: meningkatkan kemudahan masyarakat dalam menemukan, mengakses, dan menjangkau fasilitas umum melalui peta interaktif dan rekomendasi rute transportasi publik.
+        </p>
+      </div>
+      <div class="about-grid reveal">
+        <div class="about-card">
+          <div class="about-card__icon">🗺️</div>
+          <h3>Berbasis SIG</h3>
+          <p>Memanfaatkan Sistem Informasi Geografis untuk menyajikan data spasial fasilitas umum secara akurat di peta.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card__icon">🚌</div>
+          <h3>Integrasi Transportasi</h3>
+          <p>Menghubungkan informasi lokasi dengan rute TMB dan Angkot, termasuk info halte dan transit.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card__icon">♿</div>
+          <h3>Aksesibilitas Publik</h3>
+          <p>Membantu seluruh lapisan masyarakat menjangkau fasilitas umum melalui moda transportasi publik yang tersedia.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MASALAH & SOLUSI / FITUR UTAMA ============ -->
+  <section class="section section--alt" id="fitur">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__badge">Fitur Utama</span>
+        <h2 class="section__title">Peta Fasilitas Umum + Rute Transportasi Publik</h2>
+        <p class="section__desc">
+          GeoAkses menjawab dua pertanyaan sekaligus: <em>"Ada fasilitas umum apa di sekitar saya?"</em> dan <em>"Bagaimana cara saya mencapainya dengan transportasi publik?"</em>
+        </p>
+      </div>
+
+      <div class="features-grid reveal">
+        <!-- Kategori Fasilitas -->
+        <div class="feature-card">
+          <div class="feature-card__icon">📚</div>
+          <h3>Perpustakaan</h3>
+          <p>Temukan perpustakaan umum dan khusus di seluruh Kota Bandung.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🏥</div>
+          <h3>Rumah Sakit & Puskesmas</h3>
+          <p>Lokasi rumah sakit dan puskesmas dengan informasi lengkap.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🏫</div>
+          <h3>Sekolah & Universitas</h3>
+          <p>Fasilitas pendidikan dari SD hingga perguruan tinggi.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🌳</div>
+          <h3>Taman Kota</h3>
+          <p>Ruang terbuka hijau dan taman tematik Kota Bandung.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">⚽</div>
+          <h3>Tempat Olahraga</h3>
+          <p>Stadion, GOR, lapangan olahraga publik dan fasilitasnya.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🏛️</div>
+          <h3>Fasilitas Publik Lainnya</h3>
+          <p>Museum, kantor pemerintahan, dan fasilitas umum lainnya.</p>
+        </div>
+      </div>
+
+      <!-- Detail Transportasi -->
+      <div class="transport-banner reveal">
+        <div class="transport-banner__content">
+          <h3>🚍 Rekomendasi Rute TMB & Angkot</h3>
+          <p>Setiap fasilitas dilengkapi rekomendasi perjalanan menggunakan <strong>Trans Metro Bandung (TMB)</strong> maupun <strong>Angkutan Kota (Angkot)</strong>, termasuk:</p>
+          <ul class="transport-banner__list">
+            <li>🚏 <strong>Halte Keberangkatan</strong> — titik naik terdekat dari lokasi Anda</li>
+            <li>🚌 <strong>Layanan/Trayek</strong> — nomor rute TMB atau trayek angkot</li>
+            <li>🚏 <strong>Halte Tujuan</strong> — titik turun terdekat ke fasilitas</li>
+            <li>🔄 <strong>Transit</strong> — informasi perpindahan rute jika diperlukan</li>
+            <li>🚶 <strong>Jalan Kaki</strong> — petunjuk berjalan kaki dari/ke halte</li>
+            <li>⏱️ <strong>Estimasi Perjalanan</strong> — perkiraan waktu tempuh (jika tersedia)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CARA KERJA (6 LANGKAH) ============ -->
+  <section class="section" id="cara-kerja">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__badge">Cara Kerja</span>
+        <h2 class="section__title">6 Langkah Mudah Menggunakan GeoAkses</h2>
+        <p class="section__desc">Dari menemukan fasilitas umum hingga mengikuti petunjuk perjalanan — semua dalam genggaman Anda.</p>
+      </div>
+
+      <div class="steps-timeline reveal">
+        <div class="step-card" data-step="1">
+          <div class="step-card__number">1</div>
+          <div class="step-card__icon">🗺️</div>
+          <h3>Menemukan Fasilitas Umum</h3>
+          <p>Buka peta dan lihat berbagai fasilitas umum yang tersedia di sekitar lokasi Anda.</p>
+        </div>
+        <div class="step-card" data-step="2">
+          <div class="step-card__number">2</div>
+          <div class="step-card__icon">📍</div>
+          <h3>Memilih Fasilitas Tujuan</h3>
+          <p>Pilih fasilitas yang ingin dikunjungi — perpustakaan, rumah sakit, taman kota, dan lainnya.</p>
+        </div>
+        <div class="step-card" data-step="3">
+          <div class="step-card__number">3</div>
+          <div class="step-card__icon">ℹ️</div>
+          <h3>Melihat Informasi Fasilitas</h3>
+          <p>Lihat nama, kategori, alamat, lokasi pada peta, dan informasi pendukung lainnya.</p>
+        </div>
+        <div class="step-card" data-step="4">
+          <div class="step-card__number">4</div>
+          <div class="step-card__icon">🚌</div>
+          <h3>Mendapatkan Rekomendasi Transportasi</h3>
+          <p>Aplikasi menganalisis pilihan transportasi publik dari lokasi Anda menuju fasilitas yang dipilih.</p>
+        </div>
+        <div class="step-card" data-step="5">
+          <div class="step-card__number">5</div>
+          <div class="step-card__icon">🔀</div>
+          <h3>Melihat Alternatif Perjalanan</h3>
+          <p>Dapatkan info halte keberangkatan, rute transportasi, halte tujuan, transit, dan estimasi perjalanan.</p>
+        </div>
+        <div class="step-card" data-step="6">
+          <div class="step-card__number">6</div>
+          <div class="step-card__icon">🧭</div>
+          <h3>Mengikuti Petunjuk Perjalanan</h3>
+          <p>Ikuti tahapan perjalanan melalui peta dan informasi navigasi yang disediakan aplikasi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SIMULASI INTERAKTIF ============ -->
+  <section class="section section--alt" id="simulasi">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__badge">Simulasi Interaktif</span>
+        <h2 class="section__title">Coba Simulasi Rute GeoAkses</h2>
+        <p class="section__desc">Pilih kategori dan tujuan, lalu tekan "Cari Rute" untuk melihat rekomendasi perjalanan menggunakan transportasi publik. <em>(Data statis untuk demonstrasi)</em></p>
+      </div>
+
+      <div class="sim-container reveal">
+        <div class="sim-panel">
+          <!-- Input -->
+          <div class="sim-input">
+            <div class="sim-field">
+              <label for="simKategori">📂 Kategori Fasilitas</label>
+              <select id="simKategori">
+                <option value="">— Pilih Kategori —</option>
+                <option value="perpustakaan">📚 Perpustakaan</option>
+                <option value="rumah_sakit">🏥 Rumah Sakit</option>
+                <option value="taman">🌳 Taman Kota</option>
+                <option value="sekolah">🏫 Sekolah</option>
+                <option value="olahraga">⚽ Tempat Olahraga</option>
+              </select>
+            </div>
+            <div class="sim-field">
+              <label for="simTujuan">📍 Tujuan</label>
+              <select id="simTujuan" disabled>
+                <option value="">— Pilih kategori terlebih dahulu —</option>
+              </select>
+            </div>
+            <div class="sim-field">
+              <label>📌 Lokasi Anda (Simulasi)</label>
+              <input type="text" value="Alun-Alun Kota Bandung" disabled class="sim-location" />
+            </div>
+            <button class="btn btn--primary btn--block" id="simCariRute" disabled>
+              🔍 Cari Rute
+            </button>
+          </div>
+        </div>
+
+        <!-- Hasil -->
+        <div class="sim-result" id="simResult">
+          <div class="sim-result__empty">
+            <div class="sim-result__empty-icon">🗺️</div>
+            <p>Pilih kategori dan tujuan, lalu tekan <strong>"Cari Rute"</strong> untuk melihat rekomendasi perjalanan.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <h3><span class="logo-icon">📍</span> GeoAkses <span class="logo-accent">Bandung</span></h3>
+          <p>Aplikasi Android berbasis Sistem Informasi Geografis (SIG) untuk membantu masyarakat menemukan fasilitas umum di Kota Bandung sekaligus memperoleh rekomendasi rute transportasi publik.</p>
+        </div>
+        <div class="footer__links">
+          <h4>Navigasi</h4>
+          <ul>
+            <li><a href="#tentang">Tentang</a></li>
+            <li><a href="#fitur">Fitur Utama</a></li>
+            <li><a href="#cara-kerja">Cara Kerja</a></li>
+            <li><a href="#simulasi">Simulasi Rute</a></li>
+          </ul>
+        </div>
+        <div class="footer__links">
+          <h4>Proyek</h4>
+          <ul>
+            <li><a href="https://github.com/geoakses/geoakses.github.io" target="_blank" rel="noopener">📂 Repositori GitHub</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 GeoAkses Bandung. Proyek Sistem Informasi Geografis — Kota Bandung, Indonesia.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
